@@ -17,8 +17,6 @@ public class OrderEntity {
     @Column(nullable = false, length = 120, unique = true)
     private String productId;
     @Column(nullable = false)
-    private String productName;
-    @Column(nullable = false)
     private String qty;
     @Column(nullable = false)
     private Integer unitPrice;

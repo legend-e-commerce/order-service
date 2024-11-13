@@ -14,7 +14,7 @@ public class OrderEntity {
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false, length = 120, unique = true)
+    @Column(nullable = false, length = 20, unique = true)
     private String productId;
     @Column(nullable = false)
     private String qty;

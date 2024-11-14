@@ -3,6 +3,7 @@ package com.example.orderservice.controller;
 import com.example.orderservice.dto.OrderDto;
 import com.example.orderservice.entity.OrderEntity;
 import com.example.orderservice.meaagequeue.KafkaProducer;
+import com.example.orderservice.meaagequeue.OrderProducer;
 import com.example.orderservice.vo.RequestOrder;
 import com.example.orderservice.service.OrderService;
 import com.example.orderservice.vo.ResponseOrder;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class OrderController {
     private final Environment env;
     private final OrderService orderService;
     private final KafkaProducer kafkaProducer;
+    private final OrderProducer orderProducer;
 
     @GetMapping("/health_check")
     public String status() {
@@ -40,15 +43,22 @@ public class OrderController {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-        // JPA
+
         OrderDto orderDto = mapper.map(requestOrder, OrderDto.class);
         orderDto.setUserId(userId);
-        OrderDto createdOrder = orderService.createOrder(orderDto);
-
-        ResponseOrder result = mapper.map(createdOrder, ResponseOrder.class);
+        // JPA
+//        OrderDto createdOrder = orderService.createOrder(orderDto);
+//        ResponseOrder result = mapper.map(createdOrder, ResponseOrder.class);
+        
+        // Kafka Sink Connector
+        orderDto.setOrderId(UUID.randomUUID().toString());
+        orderDto.setTotalPrice(requestOrder.getUnitPrice() * requestOrder.getQty());
 
         // send this order to the kafka
         kafkaProducer.send("example-catalog-topic", orderDto);
+        orderProducer.send("orders", orderDto);
+
+        ResponseOrder result = mapper.map(orderDto, ResponseOrder.class);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }

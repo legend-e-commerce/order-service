@@ -8,6 +8,7 @@ import com.example.orderservice.vo.RequestOrder;
 import com.example.orderservice.service.OrderService;
 import com.example.orderservice.vo.ResponseOrder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.core.env.Environment;
@@ -22,6 +23,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/order-service")
+@Slf4j
 public class OrderController {
 
     private final Environment env;
@@ -39,6 +41,8 @@ public class OrderController {
             @PathVariable("userId") String userId,
             @RequestBody RequestOrder requestOrder
     ) {
+
+        log.info("Before added orders data");
 
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -60,6 +64,8 @@ public class OrderController {
 
         ResponseOrder result = mapper.map(orderDto, ResponseOrder.class);
 
+        log.info("After added orders data");
+
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
@@ -67,9 +73,20 @@ public class OrderController {
     public ResponseEntity<List<ResponseOrder>> getOrders (
             @PathVariable("userId") String userId
     ) {
+        log.info("Before recieve orders data");
+
         Iterable<OrderEntity> orderEntities = orderService.getOrdersByUserId(userId);
         List<ResponseOrder> result = new ArrayList<>();
         orderEntities.forEach(order -> result.add(new ModelMapper().map(order, ResponseOrder.class)));
+
+        try {
+            Thread.sleep(1000L);
+            throw new RuntimeException("장애 발생");
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+        }
+
+        log.info("After recieve orders data");
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }

@@ -79,13 +79,6 @@ public class OrderController {
         List<ResponseOrder> result = new ArrayList<>();
         orderEntities.forEach(order -> result.add(new ModelMapper().map(order, ResponseOrder.class)));
 
-        try {
-            Thread.sleep(1000L);
-            throw new RuntimeException("장애 발생");
-        } catch (InterruptedException e) {
-            log.error(e.getMessage());
-        }
-
         log.info("After recieve orders data");
 
         return ResponseEntity.status(HttpStatus.OK).body(result);

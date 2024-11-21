@@ -29,6 +29,9 @@ ext {
 
 dependencies {
 
+    // prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
     // zipkin + micrometer
     implementation 'io.micrometer:micrometer-observation'
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'

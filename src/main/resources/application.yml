@@ -59,4 +59,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, httptrace, info, metrics, prometheus
+        include: health, httptrace, info, metrics, prometheus, metrics, prometheus
